@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔓 Auto Decoder & 24h Key Bypass</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b1120 0%, #19223c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .card {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(18, 25, 45, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #2e3b55;
+            border-radius: 36px;
+            padding: 32px 28px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.7), 0 0 0 1px #4a5c7c inset;
+            color: #eef4ff;
+        }
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+        h1 span {
+            background: #2f80ed;
+            padding: 5px 16px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: linear-gradient(130deg, #ffb347, #ff8c00);
+            color: #0b0f17;
+            box-shadow: 0 5px 12px #ff8c0050;
+        }
+        .sub {
+            color: #a3c2ff;
+            margin-bottom: 32px;
+            font-size: 1rem;
+            border-left: 4px solid #2f80ed;
+            padding-left: 18px;
+            background: #1e2a3a60;
+            border-radius: 0 20px 20px 0;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 700px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .decoder-panel, .bypass-panel {
+            background: #101b2bbb;
+            border-radius: 28px;
+            padding: 24px 22px;
+            border: 1px solid #3b4b6b;
+            backdrop-filter: blur(4px);
+        }
+        .decoder-panel h2, .bypass-panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 22px;
+            border-bottom: 2px dashed #3a4e70;
+            padding-bottom: 12px;
+        }
+        textarea, input, select {
+            width: 100%;
+            background: #0d1424;
+            border: 2px solid #2f405f;
+            border-radius: 20px;
+            padding: 16px 18px;
+            color: #e0edff;
+            font-size: 0.95rem;
+            font-family: 'Fira Code', monospace;
+            resize: vertical;
+            outline: none;
+            transition: 0.2s;
+        }
+        textarea:focus, select:focus, input:focus {
+            border-color: #ffaa33;
+            box-shadow: 0 0 0 3px #ffaa3340;
+        }
+        .file-zone {
+            margin: 20px 0 16px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .file-label {
+            background: #25344f;
+            padding: 12px 26px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: 2px solid #4b6185;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-label:hover {
+            background: #2f4062;
+            border-color: #ffaa33;
+        }
+        #fileName {
+            color: #b0c8ff;
+            font-size: 0.9rem;
+        }
+        .method-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 22px 0 20px;
+        }
+        select {
+            width: auto;
+            min-width: 180px;
+            background: #1b253f;
+            padding: 12px 22px;
+            font-weight: 500;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffaa33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+        }
+        button {
+            background: linear-gradient(145deg, #ffaa33, #ff8800);
+            border: none;
+            padding: 14px 34px;
+            border-radius: 44px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #111a2a;
+            box-shadow: 0 8px 0 #b25e00, 0 12px 20px #ff880050;
+            cursor: pointer;
+            transition: 0.07s linear;
+            border: 2px solid #ffcd94;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        button:active {
+            transform: translateY(7px);
+            box-shadow: 0 1px 0 #b25e00, 0 10px 20px #ff880070;
+        }
+        .result-box {
+            background: #0a101e;
+            border-radius: 24px;
+            padding: 16px;
+            margin-top: 24px;
+            border: 2px solid #3d506e;
+        }
+        .result-box h3 {
+            margin: 0 0 10px 0;
+            color: #ffb960;
+        }
+        .bypass-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        .key-status {
+            background: #0f1a2c;
+            border-radius: 24px;
+            padding: 20px;
+            margin: 10px 0 20px;
+            border: 1px solid #50658b;
+            text-align: center;
+        }
+        .key-box {
+            font-family: 'Courier New', monospace;
+            background: #010514;
+            padding: 18px;
+            border-radius: 18px;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            font-weight: 700;
+            border: 2px dashed #ffaa33;
+            color: #ffe2a3;
+            margin: 16px 0;
+            word-break: break-all;
+        }
+        .timer {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: monospace;
+            background: #18233c;
+            padding: 10px 15px;
+            border-radius: 60px;
+            display: inline-block;
+            color: #ffd966;
+        }
+        .badge {
+            background: #2c3e5e;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #c7dcff;
+        }
+        .bypass-btn {
+            background: linear-gradient(145deg, #3a7bd5, #0057a3);
+            box-shadow: 0 6px 0 #003d73, 0 8px 16px #3a7bd580;
+            color: white;
+            font-size: 1.2rem;
+            justify-content: center;
+            width: 100%;
+            margin: 12px 0;
+        }
+        .footnote {
+            font-size: 0.8rem;
+            color: #95adcc;
+            text-align: center;
+            margin-top: 20px;
+        }
+        hr {
+            border: 1px solid #283851;
+            margin: 24px 0;
+        }
+        .small-note {
+            background: #1f2c41;
+            border-radius: 16px;
+            padding: 10px 16px;
+            color: #b8d1ff;
+            font-size: 0.9rem;
+        }
+        .danger {
+            color: #ff7b7b;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        ⚡ Auto Decoder · 24h Key Bypass
+        <span>BETA</span>
+    </h1>
+    <div class="sub">📂 Giải mã script/file đã mã hóa + mở khóa key động mỗi 24h (tự refresh)</div>
+
+    <div class="grid-2">
+        <!-- LEFT: DECODER MODULE -->
+        <div class="decoder-panel">
+            <h2>🔐 1. Giải mã (decrypt)</h2>
+            <textarea id="inputText" rows="5" placeholder="Paste mã hóa hoặc upload file...">SGVsbG8gV29ybGQh</textarea>
+            
+            <div class="file-zone">
+                <label for="fileUpload" class="file-label">📎 Chọn file</label>
+                <input type="file" id="fileUpload" accept=".txt,.js,.json,.log,.*" style="display: none;">
+                <span id="fileName">Chưa chọn file</span>
+            </div>
+
+            <div class="method-row">
+                <select id="decodeMethod">
+                    <option value="base64">Base64 (chuẩn)</option>
+                    <option value="rot13">ROT13 (xoay vòng)</option>
+                    <option value="reverse">Reverse (đảo ngược)</option>
+                    <option value="aes_demo">AES (demo - giả lập)</option>
+                    <option value="auto">🔍 Auto detect (thử tuần tự)</option>
+                </select>
+                <button id="decodeBtn"><span>⚙️</span> GIẢI MÃ</button>
+            </div>
+
+            <div class="result-box">
+                <h3>📄 Kết quả:</h3>
+                <textarea id="outputText" rows="5" readonly placeholder="Nội dung gốc hiện ra..."></textarea>
+            </div>
+            <div class="small-note">
+                💡 * AES demo chỉ đảo ngược + base64 để minh họa. Auto detect chạy lần lượt đến khi thành công.
+            </div>
+        </div>
+
+        <!-- RIGHT: BYPASS KEY 24H MODULE -->
+        <div class="bypass-panel">
+            <h2>🗝️ 2. Bypass Key (24h refresh)</h2>
+            <div class="key-status">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="badge">Trạng thái key</span>
+                    <span id="keyStateLabel" style="color: #f87171;">🔴 Chưa kích hoạt</span>
+                </div>
+                <div id="bypassKeyDisplay" class="key-box">••••• KHÓA •••••</div>
+                <div>
+                    <span class="timer" id="countdownTimer">00:00:00</span>
+                    <p style="margin: 8px 0 0;">⏳ thời gian còn lại (h:mm:ss)</p>
+                </div>
+            </div>
+
+            <button class="bypass-btn" id="bypassActivateBtn">
+                ⚡ KÍCH HOẠT BYPASS 24H
+            </button>
+
+            <div style="margin-top: 16px;">
+                <p style="font-weight: 300; opacity: 0.9;">✅ Sau khi bypass, key ảo sẽ tự động thay đổi mỗi 24h dựa trên thời gian thực. Bạn chỉ cần kích hoạt một lần, trang web tự refresh key.</p>
+                <p style="font-size: 0.9rem; background: #1a263d; padding: 12px; border-radius: 16px;">
+                    🔁 <strong>Cơ chế:</strong> Lưu thời điểm bypass vào localStorage. Key được tạo từ ngày tháng, thay đổi lúc nửa đêm. Hết 24h key tự động ẩn, yêu cầu bypass lại.
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="footnote">
+        🛠️ Tool auto giải mã & bypass key — mô phỏng cơ chế refresh 24h. Dữ liệu không gửi lên server.
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- DOM elements ----------
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const fileUpload = document.getElementById('fileUpload');
+        const fileNameSpan = document.getElementById('fileName');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const decodeMethod = document.getElementById('decodeMethod');
+
+        // bypass elements
+        const keyStateLabel = document.getElementById('keyStateLabel');
+        const bypassKeyDisplay = document.getElementById('bypassKeyDisplay');
+        const countdownTimer = document.getElementById('countdownTimer');
+        const bypassActivateBtn = document.getElementById('bypassActivateBtn');
+
+        // ---------- FILE UPLOAD ----------
+        fileUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) {
+                fileNameSpan.textContent = 'Chưa chọn file';
+                return;
+            }
+            fileNameSpan.textContent = file.name + ' (' + (file.size/1000).toFixed(1) + ' KB)';
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                inputText.value = ev.target.result;
+            };
+            reader.readAsText(file);
+        });
+
+        // ---------- DECODE FUNCTIONS ----------
+        function decodeBase64(str) {
+            try {
+                return atob(str);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function decodeROT13(str) {
+            return str.replace(/[a-zA-Z]/g, function(c) {
+                let base = c <= 'Z' ? 65 : 97;
+                return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+            });
+        }
+
+        function decodeReverse(str) {
+            return str.split('').reverse().join('');
+        }
+
+        // AES demo (giả lập: coi như mã hóa AES giả = đảo ngược + base64 encode)
+        function decodeAesDemo(str) {
+            // Giả sử mã hóa AES demo được thực hiện: reverse + base64
+            // Nên giải mã: base64 decode + reverse
+            try {
+                let base64Decoded = atob(str);
+                return base64Decoded.split('').reverse().join('');
+            } catch (e) {
+                // nếu không phải base64 thì thử giải mã ngược lại: reverse rồi base64?
+                try {
+                    let reversed = str.split('').reverse().join('');
+                    return atob(reversed);
+                } catch (e2) {
+                    return null;
+                }
+            }
+        }
+
+        // Auto detect: thử lần lượt các phương pháp
+        function autoDecode(str) {
+            if (!str) return '';
+            // Thử base64
+            let result = decodeBase64(str);
+            if (result && !/[^\x20-\x7E]/.test(result)) return result + ' (base64)';
+            // Thử ROT13
+            result = decodeROT13(str);
+            if (result && result !== str) return result + ' (rot13)';
+            // Thử reverse
+            result = decodeReverse(str);
+            if (result && result !== str) return result + ' (reverse)';
+            // Thử AES demo
+            result = decodeAesDemo(str);
+            if (result && result !== str) return result + ' (aes demo)';
+            return '⚠️ Không thể tự động phát hiện mã hóa.';
+        }
+
+        // Main decode handler
+        function handleDecode() {
+            const text = inputText.value;
+            if (!text.trim()) {
+                outputText.value = '⚠️ Vui lòng nhập dữ liệu cần giải mã.';
+                return;
+            }
+            const method = decodeMethod.value;
+            let final = '';
+
+            try {
+                switch (method) {
+                    case 'base64':
+                        final = decodeBase64(text) || 'Lỗi: không phải base64 hợp lệ.';
+                        break;
+                    case 'rot13':
+                        final = decodeROT13(text);
+                        break;
+                    case 'reverse':
+                        final = decodeReverse(text);
+                        break;
+                    case 'aes_demo':
+                        final = decodeAesDemo(text) || 'Lỗi: AES demo không giải được (cần định dạng đặc biệt).';
+                        break;
+                    case 'auto':
+                        final = autoDecode(text);
+                        break;
+                    default: final = 'Chọn phương thức';
+                }
+            } catch (err) {
+                final = '❌ Lỗi giải mã: ' + err.message;
+            }
+            outputText.value = final;
+        }
+
+        decodeBtn.addEventListener('click', handleDecode);
+
+        // ---------- BYPASS KEY 24h LOGIC (localStorage) ----------
+        const BYPASS_KEY = 'bypass_timestamp_24h';
+        const HOUR_MS = 3600000; // 1h in ms
+        const DAY_MS = 24 * HOUR_MS;
+
+        // Tạo key ảo dựa trên ngày (thay đổi mỗi 24h)
+        function generateDailyKey() {
+            const now = new Date();
+            // Dùng ngày tháng năm để tạo key động: base theo timestamp hằng ngày
+            const dayString = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+            // Tạo chuỗi giả ngẫu nhiên nhưng ổn định trong ngày
+            let hash = 0;
+            for (let i = 0; i < dayString.length; i++) {
+                hash = ((hash << 5) - hash + dayString.charCodeAt(i)) | 0;
+            }
+            const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+            return `KEY-${hex.slice(0,4)}-${hex.slice(4,8)}-${dayString.replace(/-/g,'')}`;
+        }
+
+        // Cập nhật giao diện bypass dựa trên thời điểm lưu
+        function updateBypassUI() {
+            const stored = localStorage.getItem(BYPASS_KEY);
+            const now = Date.now();
+
+            if (!stored) {
+                // Chưa bypass
+                keyStateLabel.innerHTML = '🔴 Chưa kích hoạt';
+                keyStateLabel.style.color = '#f87171';
+                bypassKeyDisplay.textContent = '🔒 LOCKED';
+                countdownTimer.textContent = '--:--:--';
+                return;
+            }
+
+            const bypassTime = parseInt(stored, 10);
+            const expiryTime = bypassTime + DAY_MS;
+            const remainingMs = expiryTime - now;
+
+            if (remainingMs <= 0) {
+                // Hết hạn
+                localStorage.removeItem(BYPASS_KEY);
+                keyStateLabel.innerHTML = '🔴 Hết hạn, cần bypass lại';
+                keyStateLabel.style.color = '#f87171';
+                bypassKeyDisplay.textContent = '🔒 LOCKED';
+                countdownTimer.textContent = '00:00:00';
+                return;
+            }
+
+            // Còn hiệu lực
+            keyStateLabel.innerHTML = '🟢 Đã mở khóa (24h)';
+            keyStateLabel.style.color = '#6fda6f';
+
+            // Hiển thị key động theo ngày (refresh mỗi 24h dựa trên lịch)
+            const currentKey = generateDailyKey();
+            bypassKeyDisplay.textContent = currentKey;
+
+            // Đếm ngược thời gian còn lại
+            const hours = Math.floor(remainingMs / HOUR_MS);
+            const minutes = Math.floor((remainingMs % HOUR_MS) / 60000);
+            const seconds = Math.floor((remainingMs % 60000) / 1000);
+            countdownTimer.textContent = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        }
+
+        // Kích hoạt bypass (lưu thời điểm hiện tại)
+        function activateBypass() {
+            localStorage.setItem(BYPASS_KEY, Date.now().toString());
+            updateBypassUI();
+        }
+
+        bypassActivateBtn.addEventListener('click', function() {
+            activateBypass();
+        });
+
+        // Tự động cập nhật đồng hồ mỗi giây và kiểm tra key change (mỗi ngày key tự động thay đổi nhờ generateDailyKey)
+        setInterval(() => {
+            updateBypassUI();
+        }, 1000);
+
+        // Khởi tạo UI lần đầu
+        updateBypassUI();
+
+        // Optional: nếu muốn tự động refresh key khi sang ngày mới, không cần thêm vì generateDailyKey luôn dùng ngày hiện tại.
+
+        // ---------- XỬ LÝ VÍ DỤ BAN ĐẦU: giải mã mẫu (base64) cho đẹp ----------
+        // Mặc định inputText đã có 'SGVsbG8gV29ybGQh' là "Hello World!"
+        // Khi load trang, click thử một lần để thấy kết quả? Có thể tự động decode mẫu
+        window.addEventListener('load', function() {
+            // Tự động decode mẫu base64 khi tải trang để gây ấn tượng
+            setTimeout(() => {
+                if (inputText.value.includes('SGVsbG8g')) {
+                    // chỉ decode nếu vẫn là ví dụ mặc định
+                    handleDecode();
+                }
+            }, 300);
+        });
+    })();
+</script>
+<!-- Thêm một vài style c
